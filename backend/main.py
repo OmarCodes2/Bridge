@@ -1,6 +1,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from typing import List, Dict
-import uuid
+import random
+import string
 
 app = FastAPI()
 
@@ -12,8 +13,8 @@ class Player:
         self.profile_image = profile_image
 
 class Room:
-    def __init__(self):
-        self.id = str(uuid.uuid4())
+    def __init__(self, room_id):
+        self.id = room_id
         self.players: List[Player] = []
         self.connections: List[WebSocket] = []
 
@@ -32,6 +33,9 @@ class Room:
     async def broadcast(self, message: dict):
         for connection in self.connections:
             await connection.send_json(message)
+
+def generate_room_id(length=4):
+    return ''.join(random.choices(string.digits, k=length))
 
 @app.websocket("/ws/{room_id}")
 async def websocket_endpoint(websocket: WebSocket, room_id: str):
@@ -64,7 +68,10 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
 
 @app.post("/create_room")
 async def create_room():
-    room = Room()
+    room_id = generate_room_id()
+    while room_id in rooms:
+        room_id = generate_room_id()
+    room = Room(room_id)
     rooms[room.id] = room
     return {"room_id": room.id}
 
