@@ -1,12 +1,33 @@
+import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import Login from './pages/login';
+import Home from './pages/home';
+
+const Stack = createStackNavigator();
 
 export default function App() {
+  const [token, setToken] = useState(null);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {token ? (
+          <>
+            <Stack.Screen name="Home">
+              {(props) => <Home {...props} token={token} setToken={setToken} />}
+            </Stack.Screen>
+          </>
+        ) : (
+          <Stack.Screen name="Login">
+            {(props) => <Login {...props} setToken={setToken} />}
+          </Stack.Screen>
+        )}
+      </Stack.Navigator>
       <StatusBar style="auto" />
-    </View>
+    </NavigationContainer>
   );
 }
 
@@ -14,7 +35,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
   },
 });
