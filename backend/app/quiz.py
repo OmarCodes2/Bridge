@@ -1,36 +1,50 @@
+from app.generate_songs import *
 import random
-from song_bank_generator import fetch_songs_from_playlist, fetch_songs_from_user, fetch_songs_from_group
-from question_generator import generate_guess_the_audio_question, generate_who_listened_more_question
 
 class Quiz:
-    def __init__(self, quiz_type, identifier):
+    def __init__(self, token, quiz_type, question_type, room_object):
+        self.token = token
         self.quiz_type = quiz_type
-        self.identifier = identifier
+        self.question_type = question_type
+        self.room_object = room_object
         self.song_bank = []
         self.questions = []
 
     def create_song_bank(self):
-        # Fetch songs from Spotify API based on quiz type and identifier
-        if self.quiz_type == 'Playlist':
-            self.song_bank = fetch_songs_from_playlist(self.identifier)
-        elif self.quiz_type == 'Taste':
-            self.song_bank = fetch_songs_from_user(self.identifier)
-        elif self.quiz_type == 'Taste Group':
-            self.song_bank = fetch_songs_from_group(self.identifier)
-        # Shuffle the song bank for randomness
-        random.shuffle(self.song_bank)
+        if self.quiz_type == "artist":
+            self.song_bank = generate_songs_artists(self.token, self.room_object.artist)
 
     def generate_questions(self):
-        # Generate 10 questions based on the song bank and quiz templates
-        for _ in range(10):
-            question_type = random.choice(["guess_the_audio", "who_listened_more"])
-            if question_type == "guess_the_audio":
-                self.questions.append(generate_guess_the_audio_question(self.song_bank))
-            elif question_type == "who_listened_more":
-                song = random.choice(self.song_bank)
-                self.questions.append(generate_who_listened_more_question(song))
+        # Shuffle the song bank to ensure random order
+        random.shuffle(self.song_bank)
+        
+        # Generate questions without repeating any song
+        for song in self.song_bank[:10]:  # Assuming you want 10 questions
+            # Create a list of wrong options by excluding the current song
+            wrong_options = [s for s in self.song_bank if s != song]
+            random.shuffle(wrong_options)  # Shuffle to get random wrong options
+            
+            # Select 3 random wrong options
+            options = [
+                {"text": song["song_name"], "is_correct": True}
+            ]
+            
+            # Add 3 wrong options
+            for wrong_option in wrong_options[:3]:
+                options.append({"text": wrong_option["song_name"], "is_correct": False})
+            
+            # Shuffle options to avoid always placing the correct answer first
+            random.shuffle(options)
 
+            # Create the question and add it to the questions list
+            question = {
+                "question": "Guess the song",
+                "mp3": song["preview_url"],  # Use the song's preview URL
+                "options": options
+            }
+            self.questions.append(question)
+            
     def get_next_question(self):
         if self.questions:
             return self.questions.pop(0)
-        return None
+
