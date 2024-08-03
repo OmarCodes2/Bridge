@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Login from './pages/login';
 import Home from './pages/home';
+import Room from './pages/room';
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,7 @@ export default function App() {
             <Stack.Screen name="Home">
               {(props) => <Home {...props} token={token} setToken={setToken} />}
             </Stack.Screen>
+            <Stack.Screen name="Room" component={Room} />
           </>
         ) : (
           <Stack.Screen name="Login">

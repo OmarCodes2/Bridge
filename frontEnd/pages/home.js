@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Home({ token, setToken }) {
   const [profile, setProfile] = useState(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
     async function fetchProfile() {
@@ -26,7 +28,16 @@ export default function Home({ token, setToken }) {
     setToken(null);
   };
 
-  const handleCreateRoom = () => {
+  const handleCreateRoom = async () => {
+    try {
+      const response = await fetch('https://hackthe6ix.onrender.com/create_room', {
+        method: 'POST',
+      });
+      const data = await response.json();
+      navigation.navigate('Room', { roomId: data.room_id, token, profile });
+    } catch (error) {
+      console.error('Error creating room:', error);
+    }
   };
 
   return (

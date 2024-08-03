@@ -11,22 +11,23 @@
   "dependencies": {
     "@expo/metro-runtime": "~3.2.1",
     "@expo/vector-icons": "^14.0.2",
+    "@react-native-masked-view/masked-view": "0.3.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
     "axios": "^1.7.3",
     "expo": "~51.0.24",
+    "expo-auth-session": "~5.5.2",
     "expo-linear-gradient": "~13.0.2",
     "expo-status-bar": "~1.12.1",
+    "isomorphic-ws": "^5.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.3",
-    "react-native-web": "~0.19.10",
-    "socket.io-client": "^4.7.5",
-    "@react-native-masked-view/masked-view": "0.3.1",
-    "react-native-svg": "15.2.0",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-reanimated": "~3.10.1",
-    "expo-auth-session": "~5.5.2"
+    "react-native-svg": "15.2.0",
+    "react-native-web": "~0.19.10",
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
