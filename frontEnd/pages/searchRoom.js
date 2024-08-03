@@ -7,35 +7,19 @@ export default function SearchRoom({ token, profile }) {
   const [error, setError] = useState('');
   const navigation = useNavigation();
 
-  const handleSearchRoom = () => {
-    const ws = new WebSocket(`wss://hackthe6ix.onrender.com/ws/${roomId}`);
-
-    ws.onopen = () => {
-      ws.send(JSON.stringify({
-        action: 'join',
-        username: profile.display_name,
-        profile_image: profile.images[0]?.url || '',
-      }));
-    };
-
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type === 'error') {
-        setError(message.message);
-        ws.close();
-      } else {
+  const handleSearchRoom = async () => {
+    try {
+      const response = await fetch(`https://hackthe6ix.onrender.com/room_exists/${roomId}`);
+      const data = await response.json();
+      if (data.exists) {
         navigation.navigate('Room', { roomId, token, profile });
+      } else {
+        setError('Room does not exist');
       }
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket closed');
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+    } catch (error) {
+      console.error('Error checking room existence:', error);
       setError('An error occurred while searching for the room.');
-    };
+    }
   };
 
   return (

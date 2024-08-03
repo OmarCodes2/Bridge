@@ -67,3 +67,7 @@ async def create_room():
     room = Room()
     rooms[room.id] = room
     return {"room_id": room.id}
+
+@app.get("/room_exists/{room_id}")
+async def room_exists(room_id: str):
+    return {"exists": room_id in rooms}
