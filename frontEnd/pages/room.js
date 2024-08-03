@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Image } from 'react-native';
+import { StyleSheet, View, Text, Image, ImageBackground } from 'react-native';
 
 export default function Room({ route }) {
   const { roomId, token, profile } = route.params;
@@ -38,13 +38,20 @@ export default function Room({ route }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Room ID: {roomId}</Text>
-      {players.map((player, index) => (
-        <View key={index} style={styles.player}>
-          <Image source={{ uri: player.profile_image }} style={styles.profileImage} />
-          <Text style={styles.playerName}>{player.username}</Text>
-        </View>
-      ))}
+      <ImageBackground 
+        source={require('../assets/waitingRoomBackground.png')}
+        style={styles.background}
+        resizeMode="contain"
+      />
+      <View style={styles.contentContainer}>
+        <Text style={styles.title}>Room ID: {roomId}</Text>
+        {players.map((player, index) => (
+          <View key={index} style={styles.player}>
+            <Image source={{ uri: player.profile_image }} style={styles.profileImage} />
+            <Text style={styles.playerName}>{player.username}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
@@ -52,8 +59,20 @@ export default function Room({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 50,
     backgroundColor: '#000',
+  },
+  background: {
+    width: '100%',
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    position: 'relative',
+    top: -70,
+  },
+  contentContainer: {
+    flex: 1,
+    paddingTop: 50,
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
