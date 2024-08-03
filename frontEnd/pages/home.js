@@ -40,6 +40,10 @@ export default function Home({ token, setToken }) {
     }
   };
 
+  const handleJoinRoom = () => {
+    navigation.navigate('SearchRoom', { token, profile });
+  };
+
   return (
     <View style={styles.container}>
       {profile && (
@@ -56,7 +60,7 @@ export default function Home({ token, setToken }) {
       <TouchableOpacity style={styles.roomButton} onPress={handleCreateRoom}>
         <Text style={styles.roomButtonText}>Create Room</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.roomButton}>
+      <TouchableOpacity style={styles.roomButton} onPress={handleJoinRoom}>
         <Text style={styles.roomButtonText}>Join Room</Text>
       </TouchableOpacity>
     </View>
