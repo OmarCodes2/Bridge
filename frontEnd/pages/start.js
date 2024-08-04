@@ -5,7 +5,6 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import { Audio } from "expo-av";
 import { useNavigation } from "@react-navigation/native";
@@ -17,6 +16,7 @@ export default function Start({ route }) {
   const [selectedOption, setSelectedOption] = useState(null);
   const [options, setOptions] = useState([]);
   const [mp3Url, setMp3Url] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false); // State to track submission
   const ws = useRef(null);
   const timeoutRef = useRef(null);
   const [leaderboard, setLeaderboard] = useState();
@@ -27,7 +27,7 @@ export default function Start({ route }) {
 
     ws.current.onopen = () => {
       console.log("Connected to WebSocket");
-      if (first == "first"){
+      if (first === "first") {
         ws.current.send(JSON.stringify({ action: "start" }));
       }
     };
@@ -40,10 +40,11 @@ export default function Start({ route }) {
           await sound.stopAsync(); // Stop the current sound if it's playing
         }
 
-        // reset selected option before setting new options
+        // Reset selected option and submission status before setting new options
         setSelectedOption(null);
+        setIsSubmitted(false);
 
-        // process options to keep text before parentheses
+        // Process options to keep text before parentheses
         const processedOptions = message.data.options.map((option) => ({
           ...option,
           text: option.text.split("(")[0].trim(), // keep text before parentheses
@@ -52,7 +53,7 @@ export default function Start({ route }) {
         setOptions(processedOptions);
         setMp3Url(message.data.mp3);
         await playSound(message.data.mp3);
-      } else if (message.type == "standings") {
+      } else if (message.type === "standings") {
         console.log(message);
         setLeaderboard(message.data);
         if (sound) {
@@ -94,10 +95,9 @@ export default function Start({ route }) {
         if (sound) {
           await sound.stopAsync();
         }
-      }, 5000);
+      }, 9500);
     } catch (error) {
-      Alert.alert("Error", "Failed to load or play the audio.");
-      console.error(error);
+      console.error("Error loading or playing audio:", error);
     }
   }
 
@@ -112,17 +112,15 @@ export default function Start({ route }) {
 
   const handleSubmit = () => {
     if (selectedOption) {
-      Alert.alert("Submission", `You selected: ${selectedOption.text}`);
-    } else {
-      Alert.alert("No Selection", "Please select an option before submitting.");
+      setIsSubmitted(true); // Mark as submitted
+      ws.current.send(
+        JSON.stringify({
+          action: "answer",
+          username: profile.display_name,
+          answer: selectedOption.text,
+        })
+      );
     }
-    ws.current.send(
-      JSON.stringify({
-        action: "answer",
-        username: profile.display_name,
-        answer: selectedOption.text,
-      })
-    );
   };
 
   return (
@@ -144,6 +142,7 @@ export default function Start({ route }) {
             <TouchableOpacity
               style={styles.optionImageContainer}
               onPress={() => handleOptionSelect(option)}
+              disabled={isSubmitted} // Disable option selection after submission
             >
               <Image
                 source={{ uri: option.album_cover }}
@@ -153,6 +152,7 @@ export default function Start({ route }) {
             <TouchableOpacity
               style={styles.optionButton}
               onPress={() => handleOptionSelect(option)}
+              disabled={isSubmitted} // Disable option selection after submission
             >
               <Text
                 style={[
@@ -171,9 +171,12 @@ export default function Start({ route }) {
 
       {/* Submit Button */}
       <TouchableOpacity
-        style={[styles.submitButton, !selectedOption && styles.disabledButton]}
+        style={[
+          styles.submitButton,
+          (!selectedOption || isSubmitted) && styles.disabledButton, // Apply disabled style
+        ]}
         onPress={handleSubmit}
-        disabled={!selectedOption}
+        disabled={!selectedOption || isSubmitted} // Disable the button after submission
       >
         <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
@@ -242,7 +245,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   disabledButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#4CAF50", // Greyed-out color for the disabled state
+    opacity: 0.5, // Add opacity to further distinguish the disabled state
   },
   submitButtonText: {
     color: "#FFF",
