@@ -9,7 +9,7 @@ export default function SearchRoom({ token, profile }) {
 
   const handleSearchRoom = async () => {
     try {
-      const response = await fetch(`https://hackthe6ix.onrender.com/room_exists/${roomId}`);
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/room_exists/${roomId}`);
       const data = await response.json();
       if (data.exists) {
         navigation.navigate('Room', { roomId, token, profile });
