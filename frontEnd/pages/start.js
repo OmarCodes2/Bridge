@@ -8,9 +8,10 @@ import {
   Alert,
 } from "react-native";
 import { Audio } from "expo-av";
+import { useNavigation } from "@react-navigation/native";
 
-export default function Start({ route, navigation }) {
-  const { roomId, players } = route.params;
+export default function Start({ route }) {
+  const { roomId, players, profile } = route.params;
   const [sound, setSound] = useState();
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -18,12 +19,16 @@ export default function Start({ route, navigation }) {
   const [mp3Url, setMp3Url] = useState('');
   const ws = useRef(null);
   const timeoutRef = useRef(null);
+  const [leaderboard, setLeaderboard] = useState();
+  const navigation = useNavigation();
+  
 
   useEffect(() => {
     ws.current = new WebSocket(`wss://hackthe6ix.onrender.com/ws/${roomId}`);
 
     ws.current.onopen = () => {
       console.log("Connected to WebSocket");
+      ws.current.send(JSON.stringify({ action: 'start' }));
     };
 
     ws.current.onmessage = async (event) => {
@@ -37,6 +42,13 @@ export default function Start({ route, navigation }) {
         setOptions(message.data.options);
         setMp3Url(message.data.mp3);
         await playSound(message.data.mp3);
+      } else if (message.type == "standings") {
+        console.log(message)
+        setLeaderboard(message.data)
+        if (sound) {
+          await sound.stopAsync(); // Stop the current sound if it's playing
+        }
+        navigation.navigate('Leaderboard', {leaderboard});
       }
     };
 
@@ -72,7 +84,7 @@ export default function Start({ route, navigation }) {
         if (sound) {
           await sound.stopAsync();
         }
-      }, 10000);
+      }, 5000);
       
     } catch (error) {
       Alert.alert("Error", "Failed to load or play the audio.");
@@ -95,6 +107,7 @@ export default function Start({ route, navigation }) {
     } else {
       Alert.alert("No Selection", "Please select an option before submitting.");
     }
+    ws.current.send(JSON.stringify({ action: 'answer', username: profile.display_name, answer: selectedOption.text }));
   };
 
   return (

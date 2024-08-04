@@ -112,12 +112,12 @@ export default function Room({ route }) {
   };
 
   const handleStartGame = () => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify({ action: 'start' }));
-    }
+    // if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+    //   ws.current.send(JSON.stringify({ action: 'start' }));
+    // }
     
     // Navigate to the Start screen and pass necessary parameters
-    navigation.navigate('Start', {roomId, players});
+    navigation.navigate('Start', {roomId, players, profile});
   };
 
   return (
