@@ -16,19 +16,18 @@ export default function Start({ route }) {
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState(null);
   const [options, setOptions] = useState([]);
-  const [mp3Url, setMp3Url] = useState('');
+  const [mp3Url, setMp3Url] = useState("");
   const ws = useRef(null);
   const timeoutRef = useRef(null);
   const [leaderboard, setLeaderboard] = useState();
   const navigation = useNavigation();
-  
 
   useEffect(() => {
     ws.current = new WebSocket(`wss://hackthe6ix.onrender.com/ws/${roomId}`);
 
     ws.current.onopen = () => {
       console.log("Connected to WebSocket");
-      ws.current.send(JSON.stringify({ action: 'start' }));
+      ws.current.send(JSON.stringify({ action: "start" }));
     };
 
     ws.current.onmessage = async (event) => {
@@ -39,16 +38,25 @@ export default function Start({ route }) {
           await sound.stopAsync(); // Stop the current sound if it's playing
         }
 
-        setOptions(message.data.options);
+        // reset selected option before setting new options
+        setSelectedOption(null);
+
+        // process options to keep text before parentheses
+        const processedOptions = message.data.options.map((option) => ({
+          ...option,
+          text: option.text.split("(")[0].trim(), // keep text before parentheses
+        }));
+
+        setOptions(processedOptions);
         setMp3Url(message.data.mp3);
         await playSound(message.data.mp3);
       } else if (message.type == "standings") {
-        console.log(message)
-        setLeaderboard(message.data)
+        console.log(message);
+        setLeaderboard(message.data);
         if (sound) {
           await sound.stopAsync(); // Stop the current sound if it's playing
         }
-        navigation.navigate('Leaderboard', {leaderboard: message.data});
+        navigation.navigate("Leaderboard", { leaderboard: message.data });
       }
     };
 
@@ -85,7 +93,6 @@ export default function Start({ route }) {
           await sound.stopAsync();
         }
       }, 5000);
-      
     } catch (error) {
       Alert.alert("Error", "Failed to load or play the audio.");
       console.error(error);
@@ -107,7 +114,13 @@ export default function Start({ route }) {
     } else {
       Alert.alert("No Selection", "Please select an option before submitting.");
     }
-    ws.current.send(JSON.stringify({ action: 'answer', username: profile.display_name, answer: selectedOption.text }));
+    ws.current.send(
+      JSON.stringify({
+        action: "answer",
+        username: profile.display_name,
+        answer: selectedOption.text,
+      })
+    );
   };
 
   return (
@@ -171,7 +184,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#191414",
+    backgroundColor: "black",
   },
   title: {
     fontSize: 28,
