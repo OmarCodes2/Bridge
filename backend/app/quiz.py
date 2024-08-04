@@ -26,12 +26,20 @@ class Quiz:
             
             # Select 3 random wrong options
             options = [
-                {"text": song["song_name"], "is_correct": True}
+                {
+                    "text": song["song_name"], 
+                    "is_correct": True,
+                    "album_cover": song["album_cover"]  # Add album cover for correct option
+                }
             ]
             
             # Add 3 wrong options
             for wrong_option in wrong_options[:3]:
-                options.append({"text": wrong_option["song_name"], "is_correct": False})
+                options.append({
+                    "text": wrong_option["song_name"], 
+                    "is_correct": False,
+                    "album_cover": wrong_option["album_cover"]  # Add album cover for wrong options
+                })
             
             # Shuffle options to avoid always placing the correct answer first
             random.shuffle(options)

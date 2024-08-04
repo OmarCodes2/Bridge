@@ -137,6 +137,7 @@ export default function Home({ token, setToken }) {
       const data = await response.json();
       console.log(data);
       navigation.navigate("Room", { roomId: data.room_id, token, profile });
+      setModalVisible(false);
     } catch (error) {
       console.error("Error creating room:", error);
     }
@@ -144,6 +145,9 @@ export default function Home({ token, setToken }) {
 
   const handleJoinRoom = () => {
     navigation.navigate("SearchRoom", { token, profile });
+  };
+  const handleStartGame = () => {
+    navigation.navigate("Start"); // Navigate to Start page
   };
 
   const toggleModal = (item) => {
@@ -182,6 +186,10 @@ export default function Home({ token, setToken }) {
       {/* Join Room Button */}
       <TouchableOpacity style={styles.roomButton} onPress={handleJoinRoom}>
         <Text style={styles.roomButtonText}>Join Game</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.roomButton} onPress={handleJoinRoom}>
+        <Text style={styles.roomButtonText}>Start Game</Text>
       </TouchableOpacity>
 
       {/* Modal */}

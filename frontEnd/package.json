@@ -17,6 +17,7 @@
     "axios": "^1.7.3",
     "expo": "~51.0.24",
     "expo-auth-session": "~5.5.2",
+    "expo-av": "^14.0.6",
     "expo-linear-gradient": "~13.0.2",
     "expo-status-bar": "~1.12.1",
     "isomorphic-ws": "^5.0.0",
