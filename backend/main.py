@@ -132,9 +132,9 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                     # Set a 10-second timer
                     start_time = asyncio.get_event_loop().time()
 
-                    for i in range(100):
+                    while asyncio.get_event_loop().time() - start_time < 10:
                         try:
-                            answer_data = await asyncio.wait_for(websocket.receive_json(), timeout=0.1)
+                            answer_data = await asyncio.wait_for(websocket.receive_json(), timeout=10.0)
                             if answer_data.get("action") == "answer":
                                 username = answer_data["username"]
                                 selected_option = answer_data["answer"]
@@ -146,7 +146,7 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                                 
                         except asyncio.TimeoutError:
                             # Timeout after 10 seconds, break the loop
-                            continue
+                            break
                     
                     for key, value in player_responses.items():
                         room.update_player_points(key, value["is_correct"], value["time"])
