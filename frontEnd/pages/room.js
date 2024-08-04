@@ -1,38 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, Text, Image, ImageBackground, TouchableOpacity, Animated, Easing } from 'react-native';
 
 export default function Room({ route }) {
   const { roomId, token, profile } = route.params;
   const [players, setPlayers] = useState([]);
+  const ws = useRef(null);
 
   useEffect(() => {
-    const ws = new WebSocket(`wss://hackthe6ix.onrender.com/ws/${roomId}`);
+    ws.current = new WebSocket(`ws://hackthe6ix.onrender.com/ws/${roomId}`);
     
-    ws.onopen = () => {
-      ws.send(JSON.stringify({
+    ws.current.onopen = () => {
+      ws.current.send(JSON.stringify({
         action: 'join',
         username: profile.display_name,
         profile_image: profile.images[0]?.url || '',
       }));
     };
 
-    ws.onmessage = (event) => {
+    ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.type === 'players') {
         setPlayers(message.data);
       }
     };
 
-    ws.onclose = () => {
+    ws.current.onclose = () => {
       console.log('WebSocket closed');
     };
 
-    ws.onerror = (error) => {
+    ws.current.onerror = (error) => {
       console.error('WebSocket error:', error);
     };
 
     return () => {
-      ws.close();
+      if (ws.current) {
+        ws.current.close();
+      }
     };
   }, [roomId, profile]);
 
@@ -106,6 +109,12 @@ export default function Room({ route }) {
     ));
   };
 
+  const handleStartGame = () => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({ action: 'start' }));
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground 
@@ -128,7 +137,7 @@ export default function Room({ route }) {
         </View>
         <Text style={styles.playerCount}>{players.length}/4 Players</Text>
       </View>
-      <TouchableOpacity style={styles.startButton}>
+      <TouchableOpacity style={styles.startButton} onPress={handleStartGame}>
         <Text style={styles.startButtonText}>Start Game</Text>
       </TouchableOpacity>
     </View>
