@@ -85,7 +85,7 @@ class Room:
                 player.response_time = response_time
                 if is_correct:
                     # Calculate points based on response time
-                    player.points += max(1000 - int(response_time * 100), 0)  # Example point system
+                    player.points += 1  # Example point system
 
     def get_leaderboard(self):
         sorted_players = sorted(self.players, key=lambda p: p.points, reverse=True)
