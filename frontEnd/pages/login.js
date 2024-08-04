@@ -1,28 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ImageBackground, Image, Dimensions } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { ResponseType, useAuthRequest } from 'expo-auth-session';
+import React, { useEffect, useState } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ImageBackground,
+  Image,
+  Dimensions,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { ResponseType, useAuthRequest } from "expo-auth-session";
 
 const discovery = {
-  authorizationEndpoint: 'https://accounts.spotify.com/authorize',
-  tokenEndpoint: 'https://accounts.spotify.com/api/token',
+  authorizationEndpoint: "https://accounts.spotify.com/authorize",
+  tokenEndpoint: "https://accounts.spotify.com/api/token",
 };
 
 export default function Login({ setToken }) {
-  const { height } = Dimensions.get('window');
+  const { height } = Dimensions.get("window");
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Token,
       clientId: process.env.EXPO_PUBLIC_SPOTIFY_KEY,
       scopes: [
-        'user-read-currently-playing',
-        'user-read-recently-played',
-        'user-read-playback-state',
-        'user-top-read',
-        'user-modify-playback-state',
-        'streaming',
-        'user-read-email',
-        'user-read-private',
+        "user-read-currently-playing",
+        "user-read-recently-played",
+        "user-read-playback-state",
+        "user-top-read",
+        "user-modify-playback-state",
+        "streaming",
+        "user-read-email",
+        "user-read-private",
       ],
       usePKCE: false,
       redirectUri: process.env.EXPO_PUBLIC_REDIRECT_URL,
@@ -31,7 +39,7 @@ export default function Login({ setToken }) {
   );
 
   useEffect(() => {
-    if (response?.type === 'success') {
+    if (response?.type === "success") {
       const { access_token } = response.params;
       setToken(access_token);
     }
@@ -39,18 +47,30 @@ export default function Login({ setToken }) {
 
   return (
     <View style={styles.container}>
-      <ImageBackground source={require('../assets/background.png')} style={[styles.background, { height: height / 2 }]}>
+      <ImageBackground
+        source={require("../assets/background.png")}
+        style={[styles.background, { height: height / 2 }]}
+      >
         <LinearGradient
-          colors={['rgba(0,0,0,0)', 'rgba(0,0,0,1)']}
+          colors={["rgba(0,0,0,0)", "rgba(0,0,0,1)"]}
           style={styles.gradient}
         />
       </ImageBackground>
       <View style={styles.contentContainer}>
-        <Image source={require('../assets/logo.png')} style={styles.logo} />
+        <Image source={require("../assets/logo.png")} style={styles.logo} />
         <Text style={styles.title}>Millions of Games.</Text>
         <Text style={styles.title}>Free on Sparky.</Text>
-        <TouchableOpacity style={styles.signUpButton} onPress={() => promptAsync()}>
-          <Text style={styles.signUpText}>Connect Spotify Account</Text>
+        <TouchableOpacity
+          style={styles.signUpButton}
+          onPress={() => promptAsync()}
+        >
+          <View style={styles.buttonContent}>
+            <Image
+              source={require("../assets/blackLogo.png")}
+              style={styles.buttonLogo}
+            />
+            <Text style={styles.signUpText}>Connect Spotify Account</Text>
+          </View>
         </TouchableOpacity>
       </View>
     </View>
@@ -60,24 +80,24 @@ export default function Login({ setToken }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: '#000',
+    justifyContent: "flex-start",
+    alignItems: "center",
+    backgroundColor: "#000",
   },
   background: {
-    width: '100%',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    position: 'relative',
+    width: "100%",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    position: "relative",
   },
   gradient: {
     ...StyleSheet.absoluteFillObject,
   },
   contentContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 30,
-    width: '100%',
-    position: 'absolute',
+    width: "100%",
+    position: "absolute",
     bottom: "30%",
   },
   logo: {
@@ -87,22 +107,32 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 35,
-    fontWeight: 'bold',
-    color: '#FFF',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#FFF",
+    textAlign: "center",
   },
   signUpButton: {
-    backgroundColor: '#1DB954',
-    width: '80%',
+    backgroundColor: "#1DB954",
+    width: "80%",
     borderRadius: 50,
     paddingVertical: 10,
     paddingHorizontal: 30,
     marginTop: 40,
   },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonLogo: {
+    width: 40,
+    height: 40,
+    marginRight: 10,
+  },
   signUpText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#000',
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#000",
   },
 });
