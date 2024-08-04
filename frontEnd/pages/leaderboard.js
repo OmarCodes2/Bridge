@@ -1,43 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { StyleSheet, View, Text, Image, FlatList } from "react-native";
+import { useRoute } from "@react-navigation/native";
 
 export default function Leaderboard() {
-  const [standings, setStandings] = useState([]);
-
-  useEffect(() => {
-    // Fetch the standings data from the backend
-    fetchStandings();
-  }, []);
-
-  const fetchStandings = async () => {
-    // Simulating fetching data from the backend
-    const response = {
-      "type": "standings",
-      "data": [
-        {
-          "username": "test_user 1",
-          "profile_image": "https://via.placeholder.com/50", // Replace with actual image URI
-          "points": 327,
-          "response_time": 6.73499999998603
-        },
-        {
-          "username": "test_user 1",
-          "profile_image": "https://via.placeholder.com/50", // Replace with actual image URI
-          "points": 327,
-          "response_time": 6.73499999998603
-        },
-        {
-          "username": "test_user 1",
-          "profile_image": "https://via.placeholder.com/50", // Replace with actual image URI
-          "points": 327,
-          "response_time": 6.73499999998603
-        },
-        // Add more user data here
-      ]
-    };
-
-    setStandings(response.data);
-  };
+  const route = useRoute();
+  const { leaderboard } = route.params;
 
   const renderPlayer = ({ item }) => (
     <View style={styles.playerBox}>
@@ -45,6 +12,7 @@ export default function Leaderboard() {
       <View style={styles.playerInfo}>
         <Text style={styles.playerName}>{item.username}</Text>
         <Text style={styles.points}>{item.points} points</Text>
+        <Text style={styles.responseTime}>Response Time: {item.response_time.toFixed(2)} seconds</Text>
       </View>
     </View>
   );
@@ -54,13 +22,13 @@ export default function Leaderboard() {
       <Text style={styles.title}>Current Leaderboard</Text>
 
       <FlatList
-        data={standings}
+        data={leaderboard}
         renderItem={renderPlayer}
         keyExtractor={(item, index) => index.toString()}
         style={styles.leaderboardList}
       />
 
-      <Text style={styles.playerCount}>{standings.length} Players</Text>
+      <Text style={styles.playerCount}>{leaderboard.length} Players</Text>
     </View>
   );
 }
@@ -110,6 +78,11 @@ const styles = StyleSheet.create({
     color: '#1DB954',
     marginTop: 5,
   },
+  responseTime: {
+    fontSize: 14,
+    color: '#FFF',
+    marginTop: 5,
+  },
   playerCount: {
     fontSize: 22,
     color: '#FFF',
@@ -117,3 +90,4 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+ 

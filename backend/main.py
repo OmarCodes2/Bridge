@@ -140,14 +140,10 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                                     opt for opt in room.current_question["options"] 
                                     if opt["text"] == selected_option and opt["is_correct"]
                                 )
-                                player_responses[username] = is_correct
+                                room.update_player_points(username, is_correct)
                         except asyncio.TimeoutError:
                             # Timeout after 10 seconds, break the loop
                             break
-
-                    # Update points for all players who responded
-                    for username, is_correct in player_responses.items():
-                        room.update_player_points(username, is_correct)
                     
                     # Broadcast the updated leaderboard after the timeout
                     await room.broadcast({"type": "standings", "data": room.get_leaderboard()})

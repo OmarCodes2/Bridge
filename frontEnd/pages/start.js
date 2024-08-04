@@ -48,7 +48,7 @@ export default function Start({ route }) {
         if (sound) {
           await sound.stopAsync(); // Stop the current sound if it's playing
         }
-        navigation.navigate('Leaderboard', {leaderboard});
+        navigation.navigate('Leaderboard', {leaderboard: message.data});
       }
     };
 
