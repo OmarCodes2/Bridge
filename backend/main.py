@@ -133,8 +133,15 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                     start_time = asyncio.get_event_loop().time()
 
                     while asyncio.get_event_loop().time() - start_time < 10:
-                        try:
-                            answer_data = await asyncio.wait_for(websocket.receive_json(), timeout=10.0)
+                        # Use gather to wait for all players' answers concurrently
+                        pending = []
+                        for conn in room.connections:
+                            pending.append(asyncio.create_task(conn.receive_json()))
+                        
+                        done, pending = await asyncio.wait(pending, timeout=10.0)
+                        
+                        for task in done:
+                            answer_data = task.result()
                             if answer_data.get("action") == "answer":
                                 username = answer_data["username"]
                                 selected_option = answer_data["answer"]
@@ -142,10 +149,12 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                                     opt for opt in room.current_question["options"] 
                                     if opt["text"] == selected_option and opt["is_correct"]
                                 )
-                                player_responses[username] = { "is_correct": is_correct, "time": asyncio.get_event_loop().time() - start_time}
+                                player_responses[username] = {
+                                    "is_correct": is_correct, 
+                                    "time": asyncio.get_event_loop().time() - start_time
+                                }
                                 
-                        except asyncio.TimeoutError:
-                            # Timeout after 10 seconds, break the loop
+                        if asyncio.get_event_loop().time() - start_time >= 10:
                             break
                     
                     for key, value in player_responses.items():
