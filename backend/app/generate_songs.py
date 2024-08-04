@@ -31,3 +31,35 @@ def generate_songs_artists(token: str, artist: str):
         raise Exception(f"Failed to fetch top tracks: {response.status_code}, {response.text}")
     
     return songs
+
+def generate_songs_playlist(token: str, playlist_id: str):
+    songs = []
+    
+    url = f"https://api.spotify.com/v1/playlists/{playlist_id}"
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    params = {
+        "market": "US"  # Specify the market, you can change it based on your requirement
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+    
+    if response.status_code == 200:
+        data = response.json()
+        for item in data['tracks']['items']:
+            track = item['track']
+            album_cover = track['album']['images'][0]['url'] if track['album']['images'] else None
+            songs.append({
+                "song_name": track['name'],
+                "album_name": track['album']['name'],
+                "release_date": track['album']['release_date'],
+                "popularity": track['popularity'],
+                "preview_url": track['preview_url'],  # This might be None if not available
+                "spotify_url": track['external_urls']['spotify'],
+                "album_cover": album_cover  # Add the album cover image URL
+            })
+    else:
+        raise Exception(f"Failed to fetch playlist: {response.status_code}, {response.text}")
+    
+    return songs
