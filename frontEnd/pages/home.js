@@ -47,6 +47,7 @@ export default function Home({ token, setToken }) {
 
   useEffect(() => {
     async function fetchProfile() {
+      console.log(token);
       try {
         const response = await fetch("https://api.spotify.com/v1/me", {
           headers: {
@@ -115,14 +116,14 @@ export default function Home({ token, setToken }) {
   const handleCreateRoom = async () => {
     try {
       const response = await fetch(
-        "https://hackthe6ix.onrender.com/create_room",
+        `${process.env.EXPO_PUBLIC_API_URL}/create_room`,
         {
           method: "POST",
         }
       );
       const data = await response.json();
+      console.log(data);
       navigation.navigate("Room", { roomId: data.room_id, token, profile });
-      setModalVisible(false);
     } catch (error) {
       console.error("Error creating room:", error);
     }
