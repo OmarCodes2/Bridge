@@ -32,10 +32,15 @@ export default function App() {
                 />
               )}
             </Stack.Screen>
+            <Stack.Screen name="Start">
+              {(props) => <Start {...props} token={token} />}
+            </Stack.Screen>
           </>
         ) : (
           <>
-            <Stack.Screen name="Start" component={Start} />
+            <Stack.Screen name="Start">
+              {(props) => <Start {...props} token={token} />}
+            </Stack.Screen>
             <Stack.Screen name="Login">
               {(props) => <Login {...props} setToken={setToken} />}
             </Stack.Screen>
