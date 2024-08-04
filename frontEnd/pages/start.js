@@ -15,7 +15,7 @@ export default function Start({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState(null);
   const [options, setOptions] = useState([]);
-  const [mp3Url, setMp3Url] = useState('');
+  const [mp3Url, setMp3Url] = useState("");
   const ws = useRef(null);
   const timeoutRef = useRef(null);
 
@@ -34,7 +34,16 @@ export default function Start({ route, navigation }) {
           await sound.stopAsync(); // Stop the current sound if it's playing
         }
 
-        setOptions(message.data.options);
+        // reset selected option before setting new options
+        setSelectedOption(null);
+
+        // process options to keep text before parentheses
+        const processedOptions = message.data.options.map((option) => ({
+          ...option,
+          text: option.text.split("(")[0].trim(), // keep text before parentheses
+        }));
+
+        setOptions(processedOptions);
         setMp3Url(message.data.mp3);
         await playSound(message.data.mp3);
       }
@@ -73,7 +82,6 @@ export default function Start({ route, navigation }) {
           await sound.stopAsync();
         }
       }, 10000);
-      
     } catch (error) {
       Alert.alert("Error", "Failed to load or play the audio.");
       console.error(error);
@@ -158,7 +166,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#191414",
+    backgroundColor: "black",
   },
   title: {
     fontSize: 28,
