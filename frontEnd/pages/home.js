@@ -17,69 +17,69 @@ const formatNumberWithSpaces = (number) => {
 
 const modes = [
   {
-    type: 'artist',
-    image: require('../assets/artist.png'),
+    type: "artist",
+    image: require("../assets/artist.png"),
     id: null,
     search: true,
     insert: false,
-    description: 'How well do you know your favourite artist?'
+    description: "How well do you know your favourite artist?",
   },
   {
-    type: 'friend',
-    image: require('../assets/friend.png'),
+    type: "friend",
+    image: require("../assets/friend.png"),
     id: null,
     search: false,
     insert: false,
-    description: 'A test based on you and your friends music tastes.'
+    description: "A test based on you and your friends music tastes.",
   },
   {
-    type: 'playlist',
-    image: require('../assets/playlist.png'),
+    type: "playlist",
+    image: require("../assets/playlist.png"),
     id: null,
     search: false,
     insert: true,
-    description: 'How well do you know a playlist?'
+    description: "How well do you know a playlist?",
   },
   {
-    type: 'playlist',
-    image: require('../assets/kpop.png'),
-    id: '3Ir5YWemOTGRRfXgROrsDV',
+    type: "playlist",
+    image: require("../assets/kpop.png"),
+    id: "3Ir5YWemOTGRRfXgROrsDV",
     search: false,
     insert: false,
-    description: 'For all our Kpop stans.'
+    description: "For all our Kpop stans.",
   },
   {
-    type: 'playlist',
-    image: require('../assets/rock.png'),
-    id: '37i9dQZF1DWXRqgorJj26U',
+    type: "playlist",
+    image: require("../assets/rock.png"),
+    id: "37i9dQZF1DWXRqgorJj26U",
     search: false,
     insert: false,
-    description: 'Test your Rock knowledge!'
+    description: "Test your Rock knowledge!",
   },
   {
-    type: 'playlist',
-    image: require('../assets/pop.png'),
-    id: '34NbomaTu7YuOYnky8nLXL',
+    type: "playlist",
+    image: require("../assets/pop.png"),
+    id: "34NbomaTu7YuOYnky8nLXL",
     search: false,
     insert: false,
-    description: 'Do you know your pop hits?'
+    description: "Do you know your pop hits?",
   },
   {
-    type: 'playlist',
-    image: require('../assets/rap.png'),
-    id: '37i9dQZF1DX0XUsuxWHRQd',
+    type: "playlist",
+    image: require("../assets/rap.png"),
+    id: "37i9dQZF1DX0XUsuxWHRQd",
     search: false,
     insert: false,
-    description: 'How good is your rap game?'
+    description: "How good is your rap game?",
   },
   {
-    type: 'playlist',
-    image: require('../assets/anime.png'),
-    id: '1YA5cPIfDy3L03bGnNiDM7',
+    type: "playlist",
+    image: require("../assets/anime.png"),
+    id: "1YA5cPIfDy3L03bGnNiDM7",
     search: false,
     insert: false,
-    description: 'For all the weebs!'
-  }
+    description: "For all the weebs!",
+  },
 ];
 
 export default function Home({ token, setToken }) {
@@ -172,7 +172,7 @@ export default function Home({ token, setToken }) {
   };
 
   const fetchPlaylistDetails = async () => {
-    const playlistId = playlistLink.split('playlist/')[1].split('?')[0];
+    const playlistId = playlistLink.split("playlist/")[1].split("?")[0];
     try {
       const response = await fetch(
         `https://api.spotify.com/v1/playlists/${playlistId}`,
@@ -205,7 +205,12 @@ export default function Home({ token, setToken }) {
   };
 
   const handleCreateRoom = async () => {
-    const roomObject = selectedItem.type === 'artist' ? { artist: artistId, album: "" } : selectedItem.type === 'friend' ? { artist: "", album: "" } : { artist: artistId, album: "" };
+    const roomObject =
+      selectedItem.type === "artist"
+        ? { artist: artistId, album: "" }
+        : selectedItem.type === "friend"
+        ? { artist: "", album: "" }
+        : { artist: artistId, album: "" };
 
     try {
       const response = await fetch(
@@ -278,9 +283,9 @@ export default function Home({ token, setToken }) {
         <Text style={styles.roomButtonText}>Join Game</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.roomButton} onPress={handleStartGame}>
+      {/* <TouchableOpacity style={styles.roomButton} onPress={handleStartGame}>
         <Text style={styles.roomButtonText}>Start Game</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {/* Modal */}
       <Modal
@@ -293,7 +298,9 @@ export default function Home({ token, setToken }) {
       >
         <View style={styles.modalContent}>
           {selectedItem && (
-            <Text style={styles.modalDescription}>{selectedItem.description}</Text>
+            <Text style={styles.modalDescription}>
+              {selectedItem.description}
+            </Text>
           )}
           {selectedItem && selectedItem.search && (
             <>
@@ -307,7 +314,10 @@ export default function Home({ token, setToken }) {
               />
               <View style={styles.artistContainer}>
                 {artistImage && (
-                  <Image source={{ uri: artistImage }} style={styles.artistImage} />
+                  <Image
+                    source={{ uri: artistImage }}
+                    style={styles.artistImage}
+                  />
                 )}
                 <View>
                   <Text style={styles.artistName}>{artistName}</Text>
@@ -330,7 +340,10 @@ export default function Home({ token, setToken }) {
               />
               <View style={styles.artistContainer}>
                 {playlistImage && (
-                  <Image source={{ uri: playlistImage }} style={styles.artistImage} />
+                  <Image
+                    source={{ uri: playlistImage }}
+                    style={styles.artistImage}
+                  />
                 )}
                 <View>
                   <Text style={styles.artistName}>{playlistName}</Text>
@@ -393,7 +406,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: 5,
     justifyContent: "space-between",
   },
   profileImage: {
@@ -423,7 +436,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     marginHorizontal: 20,
-    marginTop: 20,
+    marginTop: 10,
   },
   gridItem: {
     backgroundColor: "#0b0b0b",
@@ -445,7 +458,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     paddingVertical: 10,
     paddingHorizontal: 30,
-    marginTop: 40,
+    marginTop: 20,
     alignSelf: "center",
   },
   roomButtonText: {

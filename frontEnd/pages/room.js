@@ -24,6 +24,9 @@ export default function Room({ route }) {
       if (message.type === 'players') {
         setPlayers(message.data);
       }
+      else if (message.type == 'start') {
+        navigation.navigate('Start', {roomId, players, profile, first: "second"});
+      }
     };
 
     ws.current.onclose = () => {
@@ -117,7 +120,7 @@ export default function Room({ route }) {
     // }
     
     // Navigate to the Start screen and pass necessary parameters
-    navigation.navigate('Start', {roomId, players, profile});
+    navigation.navigate('Start', {roomId, players, profile, first: "first"});
   };
 
   return (

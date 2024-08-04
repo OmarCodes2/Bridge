@@ -11,7 +11,7 @@ import { Audio } from "expo-av";
 import { useNavigation } from "@react-navigation/native";
 
 export default function Start({ route }) {
-  const { roomId, players, profile } = route.params;
+  const { roomId, players, profile, first } = route.params;
   const [sound, setSound] = useState();
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -27,7 +27,9 @@ export default function Start({ route }) {
 
     ws.current.onopen = () => {
       console.log("Connected to WebSocket");
-      ws.current.send(JSON.stringify({ action: "start" }));
+      if (first == "first"){
+        ws.current.send(JSON.stringify({ action: "start" }));
+      }
     };
 
     ws.current.onmessage = async (event) => {
