@@ -23,6 +23,7 @@ export default function Home({ token, setToken }) {
   const [artistImage, setArtistImage] = useState(null);
   const [artistName, setArtistName] = useState("");
   const [artistFollowers, setArtistFollowers] = useState("");
+  const [artistId, setArtistId] = useState(""); // New state for artist ID
   const [questionType, setQuestionType] = useState("");
   const navigation = useNavigation();
 
@@ -96,16 +97,19 @@ export default function Home({ token, setToken }) {
         setArtistFollowers(
           formatNumberWithSpaces(artistItem.followers.total) || ""
         ); // Format
+        setArtistId(artistItem.id || ""); // Set artist ID
       } else {
         setArtistImage(null);
         setArtistName("");
         setArtistFollowers("");
+        setArtistId(""); // Reset artist ID if not found
       }
     } catch (error) {
       console.error("Error fetching artist image:", error);
       setArtistImage(null);
       setArtistName("");
       setArtistFollowers("");
+      setArtistId(""); // Reset artist ID on error
     }
   };
 
@@ -119,6 +123,15 @@ export default function Home({ token, setToken }) {
         `${process.env.EXPO_PUBLIC_API_URL}/create_room`,
         {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            'token':token,
+            'question_type': "hello",
+            'quiz_type': "artist",
+            'room_object': {'artist': artistId, 'album': ""}
+          }),
         }
       );
       const data = await response.json();
