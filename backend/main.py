@@ -191,4 +191,12 @@ async def search_artist(response: Token):
 
 async def cleanup_rooms():
     while True:
-        for room_id, ro
+        for room_id, room in list(rooms.items()):
+            if not room.connections:
+                print(f"Deleting room {room_id} due to inactivity.")
+                del rooms[room_id]
+        await asyncio.sleep(300)  # Check every 5 minutes
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(cleanup_rooms())
