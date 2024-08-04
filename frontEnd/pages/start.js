@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -9,42 +9,71 @@ import {
 } from "react-native";
 import { Audio } from "expo-av";
 
-export default function Start({ navigation }) {
+export default function Start({ route, navigation }) {
+  const { roomId, players } = route.params;
   const [sound, setSound] = useState();
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [options, setOptions] = useState([]);
+  const [mp3Url, setMp3Url] = useState('');
+  const ws = useRef(null);
+  const timeoutRef = useRef(null);
 
-  const options = [
-    {
-      text: "SICKO MODE",
-      is_correct: false,
-      imageUri: "https://via.placeholder.com/150",
-    },
-    {
-      text: "GOOSEBUMPS",
-      is_correct: false,
-      imageUri: "https://via.placeholder.com/150",
-    },
-    {
-      text: "HIGHEST ROOM",
-      is_correct: true,
-      imageUri: "https://via.placeholder.com/150",
-    },
-    {
-      text: "MY EYES",
-      is_correct: false,
-      imageUri: "https://via.placeholder.com/150",
-    },
-  ];
+  useEffect(() => {
+    ws.current = new WebSocket(`wss://hackthe6ix.onrender.com/ws/${roomId}`);
 
-  async function playSound() {
+    ws.current.onopen = () => {
+      console.log("Connected to WebSocket");
+    };
+
+    ws.current.onmessage = async (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "question") {
+        clearTimeout(timeoutRef.current); // Clear the previous timeout
+        if (sound) {
+          await sound.stopAsync(); // Stop the current sound if it's playing
+        }
+
+        setOptions(message.data.options);
+        setMp3Url(message.data.mp3);
+        await playSound(message.data.mp3);
+      }
+    };
+
+    ws.current.onclose = () => {
+      console.log("WebSocket closed");
+    };
+
+    ws.current.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, [roomId]);
+
+  async function playSound(mp3) {
     try {
       const { sound } = await Audio.Sound.createAsync({
-        uri: "https://p.scdn.co/mp3-preview/387b31c31b72f0c16e33d0c78bab869b0a0f4eb3?cid=e889604d871c4325a8adcf6b1e8bbaad",
+        uri: mp3,
       });
       setSound(sound);
       await sound.playAsync();
-      setLoading(false); // update loading states
+      setLoading(false);
+
+      // Stop the sound after 10 seconds
+      timeoutRef.current = setTimeout(async () => {
+        if (sound) {
+          await sound.stopAsync();
+        }
+      }, 10000);
+      
     } catch (error) {
       Alert.alert("Error", "Failed to load or play the audio.");
       console.error(error);
@@ -68,15 +97,6 @@ export default function Start({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    playSound();
-    return sound
-      ? () => {
-          sound.unloadAsync();
-        }
-      : undefined;
-  }, []);
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Guess the Song</Text>
@@ -98,7 +118,7 @@ export default function Start({ navigation }) {
               onPress={() => handleOptionSelect(option)}
             >
               <Image
-                source={{ uri: option.imageUri }}
+                source={{ uri: option.album_cover }}
                 style={styles.optionImage}
               />
             </TouchableOpacity>
@@ -129,13 +149,6 @@ export default function Start({ navigation }) {
       >
         <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
-
-      {/* <TouchableOpacity
-        style={styles.loginButton}
-        onPress={() => navigation.navigate("Login")}
-      >
-        <Text style={styles.loginButtonText}>Go to Login</Text>
-      </TouchableOpacity> */}
     </View>
   );
 }
@@ -168,7 +181,6 @@ const styles = StyleSheet.create({
     width: "45%", // Adjust width for grid layout
     height: 150, // Adjust height for grid layout
     justifyContent: "center",
-    // Remove background color
   },
   optionImageContainer: {
     marginBottom: 10,
@@ -188,7 +200,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   selectedOptionContainer: {
-    // Optional: You can add a border or other styles to indicate selection
     borderWidth: 2,
     borderColor: "#1DB954",
   },
@@ -203,21 +214,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   disabledButton: {
-    backgroundColor: "#4CAF50", // Lighter green for disabled state
+    backgroundColor: "#4CAF50",
   },
   submitButtonText: {
-    color: "#FFF",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  loginButton: {
-    backgroundColor: "#1DB954",
-    paddingVertical: 15,
-    paddingHorizontal: 50,
-    borderRadius: 50,
-    marginTop: 30,
-  },
-  loginButtonText: {
     color: "#FFF",
     fontSize: 18,
     fontWeight: "bold",

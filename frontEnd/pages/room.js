@@ -1,13 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, Text, Image, ImageBackground, TouchableOpacity, Animated, Easing } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
 
 export default function Room({ route }) {
   const { roomId, token, profile } = route.params;
   const [players, setPlayers] = useState([]);
   const ws = useRef(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
-    ws.current = new WebSocket(`ws://hackthe6ix.onrender.com/ws/${roomId}`);
+    ws.current = new WebSocket(`wss://hackthe6ix.onrender.com/ws/${roomId}`);
     
     ws.current.onopen = () => {
       ws.current.send(JSON.stringify({
@@ -113,6 +115,9 @@ export default function Room({ route }) {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify({ action: 'start' }));
     }
+    
+    // Navigate to the Start screen and pass necessary parameters
+    navigation.navigate('Start', {roomId, players});
   };
 
   return (
