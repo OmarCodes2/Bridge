@@ -1,10 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, Text, Image, FlatList } from "react-native";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 
 export default function Leaderboard() {
   const route = useRoute();
+  const navigation = useNavigation();
   const { leaderboard } = route.params;
+
+  useEffect(() => {
+    // Set a timeout to navigate back to Start.js after 5 seconds
+    const timer = setTimeout(() => {
+      navigation.goBack();
+    }, 5000);
+
+    // Clear the timeout if the component is unmounted before the timeout completes
+    return () => clearTimeout(timer);
+  }, [navigation]);
 
   const renderPlayer = ({ item }) => (
     <View style={styles.playerBox}>
@@ -90,4 +101,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+
  
