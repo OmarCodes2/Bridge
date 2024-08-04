@@ -8,6 +8,7 @@ import Home from './pages/home';
 import Room from './pages/room';
 import SearchRoom from './pages/searchRoom';
 import Start from './pages/start';  // Import Start component
+import Leaderboard from './pages/leaderboard';
 
 const Stack = createStackNavigator();
 
@@ -34,6 +35,10 @@ export default function App() {
             <Stack.Screen 
               name="Start" 
               component={Start} 
+            />
+            <Stack.Screen 
+              name="Leaderboard" 
+              component={Leaderboard} 
             />
           </>
         ) : (

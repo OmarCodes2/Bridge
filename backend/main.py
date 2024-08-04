@@ -135,7 +135,7 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                                 if opt["text"] == selected_option and opt["is_correct"]
                             )
                             room.update_player_points(username, is_correct)
-                            await room.broadcast({"type": "update", "data": room.get_leaderboard()})
+                        await room.broadcast({"type": "update", "data": room.get_leaderboard()})
                     
                     except asyncio.TimeoutError:
                         # No answer received within the timeout
