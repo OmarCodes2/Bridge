@@ -111,11 +111,11 @@ export default function Start({ route }) {
   };
 
   const handleSubmit = () => {
-    if (selectedOption) {
-      Alert.alert("Submission", `You selected: ${selectedOption.text}`);
-    } else {
-      Alert.alert("No Selection", "Please select an option before submitting.");
-    }
+    // if (selectedOption) {
+    //   Alert.alert("Submission", `You selected: ${selectedOption.text}`);
+    // } else {
+    //   Alert.alert("No Selection", "Please select an option before submitting.");
+    // }
     ws.current.send(
       JSON.stringify({
         action: "answer",
