@@ -121,6 +121,8 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                 room.start_quiz()
                 await room.broadcast({"type": "start", "message": "Quiz started"})
                 
+                await asyncio.sleep(2)
+                
                 while room.quiz.questions:  # Continue as long as there are questions
                     question = room.get_next_question()
                     await room.broadcast({"type": "question", "data": question})
