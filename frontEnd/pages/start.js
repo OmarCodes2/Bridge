@@ -45,6 +45,9 @@ export default function Start({ route }) {
       } else if (message.type == "standings") {
         console.log(message)
         setLeaderboard(message.data)
+        if (sound) {
+          await sound.stopAsync(); // Stop the current sound if it's playing
+        }
         navigation.navigate('Leaderboard', {leaderboard});
       }
     };

@@ -125,22 +125,34 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                     question = room.get_next_question()
                     await room.broadcast({"type": "question", "data": question})
                     
-                    try:
-                        answer_data = await asyncio.wait_for(websocket.receive_json(), timeout=10.0)  # 10-second timeout for receiving answers
-                        if answer_data.get("action") == "answer":
-                            username = answer_data["username"]
-                            selected_option = answer_data["answer"]
-                            is_correct = any(
-                                opt for opt in room.current_question["options"] 
-                                if opt["text"] == selected_option and opt["is_correct"]
-                            )
-                            room.update_player_points(username, is_correct)
+                    player_responses = {}
+
+                    async def collect_responses():
+                        try:
+                            while True:
+                                answer_data = await websocket.receive_json()
+                                if answer_data.get("action") == "answer":
+                                    username = answer_data["username"]
+                                    selected_option = answer_data["answer"]
+                                    is_correct = any(
+                                        opt for opt in room.current_question["options"] 
+                                        if opt["text"] == selected_option and opt["is_correct"]
+                                    )
+                                    player_responses[username] = is_correct
+                        except:
+                            pass
+
+                    # Wait for 10 seconds while collecting responses
+                    await asyncio.gather(
+                        collect_responses(),
+                        asyncio.sleep(10)
+                    )
                     
-                    except asyncio.TimeoutError:
-                        # No answer received within the timeout
-                        pass  # Continue to the next part after timeout
+                    # After the 10 seconds, update points for all players who responded
+                    for username, is_correct in player_responses.items():
+                        room.update_player_points(username, is_correct)
                     
-                    # After the 10 seconds, broadcast the updated leaderboard
+                    # Broadcast the updated leaderboard after the timeout
                     await room.broadcast({"type": "standings", "data": room.get_leaderboard()})
                     await asyncio.sleep(5)  # Show standings for 5 seconds
                 
@@ -150,6 +162,8 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
     except Exception as e:
         print(f"Error: {e}")
     finally:
+        room.remove_connection(websocket)
+        await room.broadcast({"type": "players", "data": room.get_players_data()})
         await websocket.close()
 
 
