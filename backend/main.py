@@ -131,8 +131,8 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                     # Set a 10-second timer
                     start_time = asyncio.get_event_loop().time()
 
-                    async def handle_response():
-                        try:
+                    try:
+                        while asyncio.get_event_loop().time() - start_time < 10:
                             answer_data = await asyncio.wait_for(websocket.receive_json(), timeout=10.0)
                             if answer_data.get("action") == "answer":
                                 username = answer_data["username"]
@@ -143,11 +143,11 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                                 )
                                 player_responses[username] = { "is_correct": is_correct, "time": asyncio.get_event_loop().time() - start_time}
                                 print(f"Received answer from {username}: {selected_option}, correct: {is_correct}")
-                        except asyncio.TimeoutError:
-                            print("Timeout waiting for answer.")
+                                # Process only one response per player
+                                break
+                    except asyncio.TimeoutError:
+                        print("Timeout waiting for answer.")
 
-                    await asyncio.gather(*[handle_response() for _ in room.connections])
-                    
                     for key, value in player_responses.items():
                         room.update_player_points(key, value["is_correct"], value["time"])
                     
@@ -191,12 +191,4 @@ async def search_artist(response: Token):
 
 async def cleanup_rooms():
     while True:
-        for room_id, room in list(rooms.items()):
-            if not room.connections:
-                print(f"Deleting room {room_id} due to inactivity.")
-                del rooms[room_id]
-        await asyncio.sleep(300)  # Check every 5 minutes
-
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(cleanup_rooms())
+        for room_id, ro
