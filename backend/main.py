@@ -40,7 +40,6 @@ class Token(BaseModel):
     token: str
     query: str
 
-
 class Room:
     def __init__(self, room_id, token, quiz_type, question_type, room_object):
         self.id = room_id
@@ -51,6 +50,8 @@ class Room:
         self.players: List[Player] = []
         self.connections: List[WebSocket] = []
         self.quiz = None
+        self.current_question = None
+        self.start_time = 0.0
 
     def add_player(self, player: Player):
         self.players.append(player)
@@ -81,11 +82,8 @@ class Room:
     def update_player_points(self, username, is_correct, time):
         for player in self.players:
             if player.username == username:
-                response_time = time
-                player.response_time = response_time
                 if is_correct:
-                    # Calculate points based on response time
-                    player.points += 1  # Example point system
+                    player.points += 1  # Append 1 to the player's points
 
     def get_leaderboard(self):
         sorted_players = sorted(self.players, key=lambda p: p.points, reverse=True)
@@ -93,9 +91,6 @@ class Room:
 
 def generate_room_id(length=4):
     return ''.join(random.choices(string.digits, k=length))
-
-import asyncio
-from fastapi import WebSocket
 
 @app.websocket("/ws/{room_id}")
 async def websocket_endpoint(websocket: WebSocket, room_id: str):
@@ -133,8 +128,14 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                     start_time = asyncio.get_event_loop().time()
 
                     while asyncio.get_event_loop().time() - start_time < 10:
-                        try:
-                            answer_data = await asyncio.wait_for(websocket.receive_json(), timeout=10.0)
+                        pending = []
+                        for conn in room.connections:
+                            pending.append(asyncio.create_task(conn.receive_json()))
+
+                        done, _ = await asyncio.wait(pending, timeout=10.0)
+
+                        for task in done:
+                            answer_data = task.result()
                             if answer_data.get("action") == "answer":
                                 username = answer_data["username"]
                                 selected_option = answer_data["answer"]
@@ -143,10 +144,6 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                                     if opt["text"] == selected_option and opt["is_correct"]
                                 )
                                 player_responses[username] = { "is_correct": is_correct, "time": asyncio.get_event_loop().time() - start_time}
-                                
-                        except asyncio.TimeoutError:
-                            # Timeout after 10 seconds, break the loop
-                            break
                     
                     for key, value in player_responses.items():
                         room.update_player_points(key, value["is_correct"], value["time"])
@@ -158,61 +155,15 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                 await room.broadcast({"type": "final_leaderboard", "data": room.get_leaderboard()})
                 break  # Exit the loop after the quiz is over
                 
+    except WebSocketDisconnect:
+        room.remove_connection(websocket)
+        await room.broadcast({"type": "players", "data": room.get_players_data()})
     except Exception as e:
         print(f"Error: {e}")
     finally:
-        room.remove_connection(websocket)
-        await room.broadcast({"type": "players", "data": room.get_players_data()})
+        if websocket in room.connections:
+            room.remove_connection(websocket)
         await websocket.close()
-
-
-
-
-# @app.websocket("/ws/{room_id}")
-# async def websocket_endpoint(websocket: WebSocket, room_id: str):
-#     await websocket.accept()
-#     try:
-#         room = rooms.get(room_id)
-#         if not room:
-#             await websocket.send_json({"type": "error", "message": "Room does not exist"})
-#             await websocket.close()
-#             return
-
-#         room.add_connection(websocket)
-        
-#         data = await websocket.receive_json()
-#         if data.get("action") == "join":
-#             player = Player(username=data["username"], profile_image=data["profile_image"])
-#             room.add_player(player)
-#             await room.broadcast({"type": "players", "data": room.get_players_data()})
-        
-#         while True:
-            
-#             data = await websocket.receive_json()
-#             if data.get("action") == "start":
-#                 room.start_quiz()
-#                 await room.broadcast({"type": "start", "message": "Quiz started"})
-#                 while True:
-#                     question = room.get_next_question()
-#                     if question:
-#                         await room.broadcast({"type": "question", "data": question})
-#                         await asyncio.sleep(10)  # Wait for 10 seconds to collect answers
-#                         await room.broadcast({"type": "standings", "data": room.get_leaderboard()})
-#                         await asyncio.sleep(5)  # Show standings for 5 seconds
-#                     else:
-#                         await room.broadcast({"type": "final_leaderboard", "data": room.get_leaderboard()})
-#                         break
-#                     if data.get("action") == "answer":
-#                         username = data["username"]
-#                         selected_option = data["answer"]
-#                         is_correct = any(opt for opt in room.current_question["options"] if opt["text"] == selected_option and opt["is_correct"])
-#                         print("hello")
-#                         room.update_player_points(username, is_correct)
-#                         await room.broadcast({"type": "update", "data": room.get_leaderboard()})    
-#     except WebSocketDisconnect:
-#         room.remove_connection(websocket)
-#         await room.broadcast({"type": "players", "data": room.get_players_data()})
-#         pass
 
 @app.post("/create_room")
 async def create_room(response: CreateRoom):
