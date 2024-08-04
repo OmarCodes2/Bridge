@@ -59,7 +59,7 @@ export default function Login({ setToken }) {
       <View style={styles.contentContainer}>
         <Image source={require("../assets/logo.png")} style={styles.logo} />
         <Text style={styles.title}>Millions of Games.</Text>
-        <Text style={styles.title}>Free on Sparky.</Text>
+        <Text style={styles.title}>Free on Maestro.</Text>
         <TouchableOpacity
           style={styles.signUpButton}
           onPress={() => promptAsync()}
