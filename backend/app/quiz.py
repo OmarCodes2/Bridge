@@ -15,6 +15,8 @@ class Quiz:
             self.song_bank = generate_songs_artists(self.token, self.room_object.artist)
         elif self.quiz_type == "playlist":
             self.song_bank = generate_songs_playlist(self.token, self.room_object.artist)
+        else:
+            print("ERROR")
 
     def generate_questions(self):
         # Shuffle the song bank to ensure random order

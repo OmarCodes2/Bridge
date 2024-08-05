@@ -57,9 +57,11 @@ export default function Login({ setToken }) {
         />
       </ImageBackground>
       <View style={styles.contentContainer}>
-        <Image source={require("../assets/logo.png")} style={styles.logo} />
-        <Text style={styles.title}>Millions of Games.</Text>
-        <Text style={styles.title}>Free on Maestro.</Text>
+        <View style={styles.logoContainer}>
+          <Image source={require("../assets/logo.png")} style={styles.logo} />
+          <Text style={styles.bridgeText}>BRIDGE</Text>
+        </View>
+        <Text style={styles.title}>Connecting Friends Through Music</Text>
         <TouchableOpacity
           style={styles.signUpButton}
           onPress={() => promptAsync()}
@@ -98,21 +100,32 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     width: "100%",
     position: "absolute",
-    bottom: "30%",
+    bottom: "15%",
+  },
+  logoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 40,
   },
   logo: {
-    width: 60,
+    width: 80,
     height: 60,
-    marginBottom: 20,
+  },
+  bridgeText: {
+    fontSize: 50,
+    fontWeight: "bold",
+    color: "#1db954",
+    marginLeft: 10,
   },
   title: {
     fontSize: 35,
-    fontWeight: "bold",
     color: "#FFF",
     textAlign: "center",
+    fontWeight: "bold",
+    marginBottom: 20,
   },
   signUpButton: {
-    backgroundColor: "#1DB954",
+    backgroundColor: "#1db954",
     width: "80%",
     borderRadius: 50,
     paddingVertical: 10,
@@ -130,7 +143,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   signUpText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
     color: "#000",
