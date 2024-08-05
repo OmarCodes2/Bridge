@@ -1,14 +1,4 @@
 # Maestro: The Ultimate Music Quiz Experience
-
-<div style="text-align:center;">
-  <img src="frontEnd/assets/6ix1.png" width="155" alt="Image 1" style="display:inline-block; margin-right:10px;">
-  <img src="frontEnd/assets/6ix2.png" width="155" alt="Image 2" style="display:inline-block; margin-right:10px;">
-  <img src="frontEnd/assets/6ix3.png" width="155" alt="Image 3" style="display:inline-block; m">
-  <img src="frontEnd/assets/6ix5.jpg" width="155" alt="Image 4" style="display:inline-block; margin-right:10px;">
-  <img src="frontEnd/assets/6ix4.png" width="155" alt="Image 4" style="display:inline-block; margin-right:10px;">
-  <img src="frontEnd/assets/6ix6.png" width="155" alt="Image 5" style="display:inline-block;">
-</div>
-
 ## Table of Contents
 
 - [About](#about)
