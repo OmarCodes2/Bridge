@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   bridgeText: {
     fontSize: 50,
     fontWeight: "bold",
-    color: "#1ed760",
+    color: "#1db954",
     marginLeft: 10,
   },
   title: {
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   signUpButton: {
-    backgroundColor: "#1ed760",
+    backgroundColor: "#1db954",
     width: "80%",
     borderRadius: 50,
     paddingVertical: 10,
